@@ -18,15 +18,27 @@ Version:		1
 
 short einlesenEinerZahl(char text[], short min, short max); //Funktion der Funktion erklären 
 bool feldIstBelegt(int array[3][3], short zeile, short spalte);
+void computerSpielt(int array[3][3]); // computer soll random ein feld auswählen und belegen
 
 int main() {
+	int spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes 
+	char spieler = 'X'; // initial spieler auf x setzen, denn user setzt zuerst
+
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			spielfeldArray[i][j] = 0;
+		}
+	}
+
+	// random funktion initialisieren
+	srand((unsigned int)time(NULL));
+
 	// Was soll der Benutzer tun
-	printf("Du spielst TicTacToe, das blödste Spiel der Welt!\n"); 
+	printf("Du spielst TicTacToe, das blödste Spiel der Welt!\n");
 
 
 	// Ausgabe des Spielfelds 
-	int spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes 
-	int fürTabelle = 3; 
+	int fürTabelle = 3;
 	printf("\t  1   2   3\n");
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 203, 205, 205, 205, 203, 205, 205, 205, 187);
 	printf("1\t%c%4c%4c%4c\n", 186, 186, 186, 186);
@@ -35,26 +47,62 @@ int main() {
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 204, 205, 205, 205, 206, 205, 205, 205, 206, 205, 205, 205, 185);
 	printf("3\t%c%4c%4c%4c\n", 186, 186, 186, 186);
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188);
- 
-	for (int i = 0; i < 5; i++) {
-		// Beginn des Spiels 
-		printf("Du bist an der Reihe. Setze dein erstes Kreuz. Der Computer spielt mit O.\n");
 
-		// Beginn des Spiels 
-		int erstesKreuzZeile = einlesenEinerZahl("Gib nun deine Zahl für die Zeile ein", 1, 3);
-		printf("\n");
-		int erstesKreuzSpalte = einlesenEinerZahl("Gib nun deine Zahl für die Spalte ein", 1, 3);
+	//schleife zum spieldurchlauf, 9 durchläufe für 9 felder
+	for (int i = 0; i < 9; i++) {
+		if (spieler == 'X') {
+			// Beginn des Spiels 
+			printf("Du bist an der Reihe. Setze dein erstes Kreuz. Der Computer spielt mit O.\n");
 
-		spielfeldArray[erstesKreuzZeile][erstesKreuzSpalte] = 88;
-		printf("\nAusgabe:%c", spielfeldArray[erstesKreuzZeile][erstesKreuzSpalte]);
+			// Beginn des Spiels 
+			int erstesKreuzZeile = (einlesenEinerZahl("Gib nun deine Zahl für die Zeile ein", 1, 3) - 1);
+			printf("\n");
+			int erstesKreuzSpalte = (einlesenEinerZahl("Gib nun deine Zahl für die Spalte ein", 1, 3) - 1);
+
+			spielfeldArray[erstesKreuzZeile][erstesKreuzSpalte] = 88;
+
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					printf("%c, ", spielfeldArray[i][j]);
+				}
+			}
+		}
+		else {
+			// spieler ist 0, funktion für computer zug aufrufen
+			printf("der computer spielt jetzt");
+			computerSpielt(spielfeldArray);
+
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					printf("%c, ", spielfeldArray[i][j]);
+				}
+			}
+		}
+		
+		if (i >= 5) {
+			//funktion auf gewinner prüfen
+		}
+
+		//if i = 8, schleife ganz durchgelaufen, dann gleichstand
+		// 
+		// Spieler am Ende des durchlaufs wechseln wechseln
+		if (spieler == 'X') {
+			spieler = 'O';
+		} else {
+			spieler = 'X';
+		}
+		
 	}
-	return 0;
 
-	//
+
+	
+
+
+	return 0;
 }
 
 short einlesenEinerZahl(
-	char text[], 
+	char text[],
 	short min,
 	short max)
 {
@@ -88,8 +136,27 @@ short einlesenEinerZahl(
 
 bool feldIstBelegt(int array[3][3], short zeile, short spalte) { //Funktion zum Überprüfen ob eine Zahl Bestandteil eines Arrays ist 
 	bool belegt = false;
-		if (array[zeile][spalte] != 0 ) {
-			belegt = true;
-		}
+	if (array[zeile][spalte] != 0) {
+		belegt = true;
+	}
 	return belegt;
+}
+
+void computerSpielt(int spielfeld[3][3]) {
+	int zeile, spalte;
+	bool freiesFeld = true;
+
+	while (freiesFeld) {
+		zeile = rand() % 3;
+		spalte = rand() % 3;
+		printf("\n%d", zeile);
+		printf("\n%d", spalte);
+
+		freiesFeld = feldIstBelegt(spielfeld, zeile, spalte);
+	}
+
+	
+	spielfeld[zeile][spalte] = 79;
+
+
 }

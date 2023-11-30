@@ -19,7 +19,7 @@ Version:		1
 short einlesenEinerZahl(char text[], short min, short max);		// Funktion, um eine Zahl einzulesen
 bool feldIstBelegt(int array[3][3], short zeile, short spalte); //Funktion, die überprüft, ob ein Feld belegt ist 
 void einfacherComputergegner(int array[3][3]);					// computer soll random ein feld auswählen und belegen
-void gibDasAktuelleSpielfeldAus(int spielfeldArray[3][3]); 		// Funktion, die das aktuelle Spielfeld ausgibt 
+void gibDasAktuelleSpielfeldAus(int array[3][3]); 		// Funktion, die das aktuelle Spielfeld ausgibt 
 
 int main() {
 	int spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes 
@@ -28,7 +28,7 @@ int main() {
 	// Reset des Spielfelds, eventuell noch in FUnktion ausgliedern 
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			spielfeldArray[i][j] = 255; // 255 = ein Leerzeichen in Ascii 
+			spielfeldArray[i][j] = 0; // 255 = ein Leerzeichen in Ascii 
 		}
 	}
 
@@ -41,34 +41,55 @@ int main() {
 	// Abfrage nach dem Schwierigkeitsgrad (passende Variablen jeweils davor initialisieren)
 	// Abfragen, wer beginnen soll: 
 
-
+	printf("HO");
 	// Ausgabe des Spielfelds 
-	gibDasAktuelleSpielfeldAus(spielfeldArray[3][3]);
-
+	gibDasAktuelleSpielfeldAus(spielfeldArray);
+	
 	//schleife zum spieldurchlauf, 9 durchläufe für 9 felder
 	for (int i = 0; i < 9; i++) {
 		// System clear screen einfügen
+		
 		// neues Spielfeld ausgeben
+
+		printf("\t  1   2   3\n");
+		printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 203, 205, 205, 205, 203, 205, 205, 205, 187); // macht folgende Ausgabe mit ASCII-Zeichen: ╔═══╦═══╦═══╗
+		printf("1\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[0][0], 186, spielfeldArray[0][1], 186, spielfeldArray[0][2], 186);
+		printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 204, 205, 205, 205, 206, 205, 205, 205, 206, 205, 205, 205, 185); // macht folgende Ausgabe mit ASCII-Zeichen: ╠═══╬═══╬═══╣
+		printf("2\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[1][0], 186, spielfeldArray[1][1], 186, spielfeldArray[1][2], 186);
+		printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 204, 205, 205, 205, 206, 205, 205, 205, 206, 205, 205, 205, 185); // macht folgende Ausgabe mit ASCII-Zeichen: ╠═══╬═══╬═══╣
+		printf("3\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[2][0], 186, spielfeldArray[2][1], 186, spielfeldArray[2][2], 186);
+		printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188); // macht folgende Ausgabe mit ASCII-Zeichen: ╚═══╩═══╩═══╝
+
 
 		if (spieler == 'X') {
 			// Beginn des Spiels 
 			printf("Du bist an der Reihe. Setze dein erstes Kreuz. Der Computer spielt mit O.\n");
 
-			// In eine While Schleife, die überprüft, ob das Feld schon getippt wurde 
-			int erstesKreuzZeile = (einlesenEinerZahl("Gib nun deine Zahl für die Zeile ein", 1, 3) - 1);
-			printf("\n");
-			int erstesKreuzSpalte = (einlesenEinerZahl("Gib nun deine Zahl für die Spalte ein", 1, 3) - 1);
+			int erstesKreuzZeile = 0;	// 
+			int erstesKreuzSpalte = 0; 
 
+			// In eine While Schleife, die überprüft, ob das Feld schon getippt wurde
+			bool belegt = true; 
+			while (belegt) {
+				belegt = false; 
+				erstesKreuzZeile = (einlesenEinerZahl("Gib nun deine Zahl für die Zeile ein", 1, 3) - 1);
+				erstesKreuzSpalte = (einlesenEinerZahl("Gib nun deine Zahl für die Spalte ein", 1, 3) - 1);
+				belegt = feldIstBelegt(spielfeldArray, erstesKreuzZeile, erstesKreuzSpalte); 
+				if (belegt) {
+					printf("Dieses Feld ist bereits belegt.\n"); 
+				}
+			}
 			spielfeldArray[erstesKreuzZeile][erstesKreuzSpalte] = 88;
 
 			// nur zum Überprüfen da 
+			printf("\n"); 
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
 					printf("%c, ", spielfeldArray[i][j]);
 				}
 			}
 		}
-		else {
+		/*else {
 			// spieler ist 0, funktion für computer zug aufrufen
 			printf("der computer spielt jetzt");
 
@@ -89,10 +110,10 @@ int main() {
 
 		//Sobald kein weiterer Zug mehr möglich, eventuell mit elif?
 		if (i = 8) {
-			printf("Gleichstand, niemand hat gewonnen\n"); 
+			printf("Gleichstand, niemand hat gewonnen\n");
 		}
 
-	
+
 		// würde ich am liebsten an das Ende der verschiedenen if-else packen?? 
 		if (spieler == 'X') {
 			spieler = 'O';
@@ -100,7 +121,7 @@ int main() {
 		else {
 			spieler = 'X';
 		}
-
+		*/
 	}
 
 	return 0;
@@ -162,13 +183,13 @@ void einfacherComputergegner(int spielfeld[3][3]) {
 	spielfeld[zeile][spalte] = 79;
 }
 
-void gibDasAktuelleSpielfeldAus(int spielfeldArray[3][3]) {
+void gibDasAktuelleSpielfeldAus(int array[3][3]) {
 	printf("\t  1   2   3\n");
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 203, 205, 205, 205, 203, 205, 205, 205, 187); // macht folgende Ausgabe mit ASCII-Zeichen: ╔═══╦═══╦═══╗
-	printf("1\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[0][0], 186, spielfeldArray[0][1], 186, spielfeldArray[0][2], 186);
+	printf("1\t%c %c %c %c %c %c %c\n", 186, array[0][0], 186, array[0][1], 186, array[0][2], 186);
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 204, 205, 205, 205, 206, 205, 205, 205, 206, 205, 205, 205, 185); // macht folgende Ausgabe mit ASCII-Zeichen: ╠═══╬═══╬═══╣
-	printf("2\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[1][0], 186, spielfeldArray[1][1], 186, spielfeldArray[1][2], 186);
+	printf("2\t%c %c %c %c %c %c %c\n", 186, array[1][0], 186, array[1][1], 186, array[1][2], 186);
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 204, 205, 205, 205, 206, 205, 205, 205, 206, 205, 205, 205, 185); // macht folgende Ausgabe mit ASCII-Zeichen: ╠═══╬═══╬═══╣
-	printf("3\t%c %c %c %c %c %c %c\n", 186, spielfeldArray[2][0], 186, spielfeldArray[2][1], 186, spielfeldArray[2][2], 186);
+	printf("3\t%c %c %c %c %c %c %c\n", 186, array[2][0], 186, array[2][1], 186, array[2][2], 186);
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188); // macht folgende Ausgabe mit ASCII-Zeichen: ╚═══╩═══╩═══╝
 }

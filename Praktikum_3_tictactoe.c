@@ -193,3 +193,28 @@ void gibDasAktuelleSpielfeldAus(int array[3][3]) {
 	printf("3\t%c %c %c %c %c %c %c\n", 186, array[2][0], 186, array[2][1], 186, array[2][2], 186);
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188); // macht folgende Ausgabe mit ASCII-Zeichen: ╚═══╩═══╩═══╝
 }
+
+int gewinnErmitteln(int spielfeld[3][3], char spieler) {
+	 // 0 für computer, 1 für spieler
+
+	//alle array konstellationen checken
+	for (int i = 0; i < 3; ++i) {
+		//zeilen und spalten abprüfen
+		if ((spielfeld[i][0] == spieler && spielfeld[i][1] == spieler && spielfeld[i][2] == spieler) ||
+			(spielfeld[0][i] == spieler && spielfeld[1][i] == spieler && spielfeld[2][i] == spieler)) {
+			return 1; // Über Spalten und Zeilen konnte ein Gewinner ermittelt werden, die Funktion kann verlassen werden
+		}
+
+		
+	}
+
+	//Über Spalten und Zeilen wurde noch kein gewinner ermittelt, wir prüfen noch die diagonalen
+	if ((spielfeld[0][0] == spieler && spielfeld[1][1] == spieler && spielfeld[2][2] == spieler) ||
+		(spielfeld[0][2] == spieler && spielfeld[1][1] == spieler && spielfeld[2][0] == spieler)) {
+		return 1; // Über die Diagonalen wurde ein Gewinner gefunden
+	}
+
+
+	// noch hat niemand gewonnen
+	return 0;
+}

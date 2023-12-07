@@ -3,7 +3,7 @@
 Name:			TicTacToe
 Beschreibung:	Programm, in welchem der Nutzer TicTacToe gegen den Computer spielen kann und entweder gegen diesen verlieren, gewinnen oder unentschieden spielen kann.
 				Dabei kann der Nutzer immer weiterspielen und der Spielstand wird über mehrere Runden bestimmt. 
-				Zudem kann der Nutzer entscheiden, wie schwer der COmputer spielt und ob er selbst oder der Computer beginnt 
+				Zudem kann der Nutzer entscheiden, wie schwer der Computer spielt und ob er selbst oder der Computer beginnt 
 Autorinnen:	    Emily Klemt, Carolin Altstaedt
 Datum:		    19.11.2023
 Version:		1
@@ -22,9 +22,10 @@ Version:		1
 short einlesenEinerZahl(char text[], short min, short max);		// Funktion, um eine Zahl einzulesen
 bool feldIstBelegt(char spielfeld[3][3], short zeile, short spalte); //Funktion, die überprüft, ob ein Feld belegt ist 
 void einfacherComputergegner(char spielfeld[3][3]);					// Funktion für den einfachen Computer, die nur zufällig ein Feld ausgibt
-void schwererComputer(char spielfeld[3][3]);			// Funktion für den schweren COmputer, die jedes Mal den bestmöglichen Zug ermittelt 
+void schwererComputer(char spielfeld[3][3], bool wenigerAlsZweiRunden);			// Funktion für den schweren COmputer, die jedes Mal den bestmöglichen Zug ermittelt 
 void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spielstandComputer, int spielstandMensch); 		// Funktion, die das aktuelle Spielfeld ausgibt 
-bool gewinnErmitteln(char spielfeld[3][3]);				// Funktion, die überprüft, ob es einen Gewinner gibt 
+bool hatNiemandGewonnen(char spielfeld[3][3]);				// Funktion, die überprüft, ob es einen Gewinner gibt 
+bool gibtEsZweiGleiche(char spielfeld[3][3], int aktuelleSpalte, int aktuelleZeile); // Funktion, um zu überprüfen, ob es 2 gleiche in einer gewinnbringenden Form durch den aktuellen Zug gibt 
 
 int main() {
 	
@@ -35,8 +36,7 @@ int main() {
 
 	while (weiterspielen)
 	{
-		char spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes 
-		bool spielerIstDran = false; // Variable, die wenn der Spieler selber dran ist, true ist 
+		char spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes
 
 		// Reset des Spielfelds
 		for (int i = 0; i < 3; i++) {
@@ -51,11 +51,17 @@ int main() {
 		// Einführung in das Spiel und Benutzeranleitung 
 		printf("Du spielst TicTacToe, das bloedeste Spiel der Welt!\n");
 
-		// Abfrage nach dem Schwierigkeitsgrad (passende Variablen jeweils davor initialisieren):
-		
+		// Abfrage nach dem Schwierigkeitsgrad 
+		bool gegenEinfachenComputerSpielen = true; //Variable die angibt, ob der Mensch gegen einen einfachen oder schweren Computer spielen möchte
+		printf("Moechtest du gegen einen einfachen oder schweren Computer spielen? Wenn du gegen einen schweren Computer spielen moechtest druecke 's' und enter. Wenn du gegen einen einfachen spielen moechtest druecke nur enter."); 
+		if (getchar() == 's') gegenEinfachenComputerSpielen = false; 
+		while (getchar() != '\n') {}
+
 		// Abfragen, wer beginnen soll: 
+		bool spielerIstDran = false; // Variable, die wenn der Spieler selber dran ist, true ist 
 		printf("Moechtest du beginnen, dann druecke x. Wenn nicht druecke einfach enter.\n"); 
 		if (getchar() == 'x') spielerIstDran = true; 
+		while (getchar() != '\n') {}
 
 		// Ausgabe des Spielfelds 
 		gibDasAktuelleSpielfeldAus(spielfeldArray, anzahlRunden, spielstandComputer, spielstandSpieler);
@@ -80,8 +86,8 @@ int main() {
 				bool belegt = true;
 				while (belegt) {
 					belegt = false;
-					erstesKreuzZeile = (einlesenEinerZahl("Gib nun deine Zahl für die Zeile ein", 1, 3) - 1);
-					erstesKreuzSpalte = (einlesenEinerZahl("Gib nun deine Zahl für die Spalte ein", 1, 3) - 1);
+					erstesKreuzZeile = (einlesenEinerZahl("Gib nun deine Zahl fuer die Zeile ein", 1, 3) - 1);
+					erstesKreuzSpalte = (einlesenEinerZahl("Gib nun deine Zahl fuer die Spalte ein", 1, 3) - 1);
 					belegt = feldIstBelegt(spielfeldArray, erstesKreuzZeile, erstesKreuzSpalte);
 					if (belegt) {
 						printf("Dieses Feld ist bereits belegt.\n");
@@ -91,16 +97,17 @@ int main() {
 
 			}
 			else {
+				bool wenigerAlsZweiRunden = true; // Array für den schweren Computer, der angibt, ob mehr als zwei Runden gespielt wurden 
+				if (i > 2) wenigerAlsZweiRunden = false; 
 				// spieler ist 0, funktion für computer zug aufrufen
 				printf("Der Computer spielt jetzt:\n");
 
-				// hier verschiedene Möglichkeiten, für verschiedene Schwierigkeitsgrade
-				einfacherComputergegner(spielfeldArray);
+				if (gegenEinfachenComputerSpielen) einfacherComputergegner(spielfeldArray);
+				else schwererComputer(spielfeldArray, wenigerAlsZweiRunden); 
 			}
 
 			// Überprüfen, ob es einen Gewinner gibt und Ausgabe des Gewinners
-			niemandHatGewonnen = gewinnErmitteln(spielfeldArray);
-			printf("%d", niemandHatGewonnen);
+			niemandHatGewonnen = hatNiemandGewonnen(spielfeldArray);
 			if (niemandHatGewonnen == false) {
 				anzahlRunden++;
 				// für die Optik 
@@ -114,9 +121,11 @@ int main() {
 			// nach 8 Runden das unentschieden ausgeben, wenn noch niemand gewonnen hat 
 			if (i == 8 && niemandHatGewonnen) {
 				anzahlRunden++; 
-				printf("Gleichstand, niemand hat gewonnen!\n");
 				spielstandComputer++;
-				spielstandSpieler++; 
+				spielstandSpieler++;
+				system("cls");
+				gibDasAktuelleSpielfeldAus(spielfeldArray, anzahlRunden, spielstandComputer, spielstandSpieler);
+				printf("Gleichstand, niemand hat gewonnen!\n");
 			}
 
 			// Wechseln des aktuellen Spielers 
@@ -164,7 +173,6 @@ short einlesenEinerZahl( // Funktion, um eine Zahl einzulesen
 		else if (eingelesenerWert < min || eingelesenerWert > max) printf("Zahl muss zwischen 1 und 3 liegen.\n");
 		else fertig = true;
 		// Input stream leeren 
-
 		while (ch != '\n') {
 			char checkChar = scanf("%c", &ch);
 		}
@@ -199,43 +207,67 @@ void einfacherComputergegner(char spielfeld[3][3]) { // einfacher Computergegner
 }
 
 
-void schwererComputer(char spielfeld[3][3]) { // schwerer Computergegner, der immer den bestmöglichen Zug ermittelt 
-	char spielfeldkopie[3][3]; // Eine Kopie des Spielfelds erstellen 
-	for (int i = 0; i < 3; i++) { // Werte in die Kopie des Spielfelds einelesen
-		for (int j = 0; j < 3; j++) {
-			spielfeldkopie[i][j] = spielfeld[i][j]; 
+void schwererComputer(char spielfeld[3][3], bool wenigerAlsZweiRunden) { // schwerer Computergegner, der immer den bestmöglichen Zug ermittelt 
+	bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 2, 2);
+	if (wenigerAlsZweiRunden && dieMitteIstNichtFrei == false) {
+			spielfeld[2][2] = 'O';
 		}
-	}
-	int werteDesSpielzugs[3][3]; // Array der den Wert, beinhaltet, was es dem COmputer bringen würde, dieses zu benutzen 
-
-	// Simulation verschiedener Spielzüge über alle Felder 
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			// Wenn das Feld schon belegt ist, wird dem Spielzug der Wert 0 zugewiesen 
-			if (feldIstBelegt(spielfeldkopie, i, j)) {
+	else {
+		char spielfeldkopie[3][3]; // Eine Kopie des Spielfelds erstellen 
+		for (int i = 0; i < 3; i++) { // Werte in die Kopie des Spielfelds einelesen
+			for (int j = 0; j < 3; j++) {
+				spielfeldkopie[i][j] = spielfeld[i][j];
+			}
+		}
+		int werteDesSpielzugs[3][3]; // Array der den Wert, beinhaltet, was es dem COmputer bringen würde, dieses zu benutzen 
+		// Simulation verschiedener Spielzüge über alle Felder 
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
 				werteDesSpielzugs[i][j] = 0;
-			}
-			// Wenn das Feld nicht belegt ist, verschiedene Szenarien für die Belegung prüfen 
-			else {
-				// Überprüfen, ob der Computer mit diesem Zug gewonnen hätte 
-				spielfeldkopie[i][j] = 'O';
-				if (gewinnErmitteln(spielfeldkopie) == false) {
-					werteDesSpielzugs[i][j] = 3;
-				}
-				spielfeldkopie[i][j] = 'X';
-				if (gewinnErmitteln(spielfeldkopie) == false) { // Warum hier Problem mit dem Else if??? 
-					werteDesSpielzugs[i][j] = 2;
-				}
-				// Das Feld der Spielfeldkopie leeren
+				// Wenn das Feld nicht belegt ist, verschiedene Szenarien für die Belegung prüfen 
+				if (!feldIstBelegt(spielfeldkopie, i, j)) {
+					// Überprüfen, ob der Computer mit diesem Zug gewonnen hätte 
+					spielfeldkopie[i][j] = 'O';
+					if (hatNiemandGewonnen(spielfeldkopie) == false) {
+						werteDesSpielzugs[i][j] = 3;
+					}
+					// wenn es keine Möglichkeit zum Gewinnen gibt, überprüfen, ob man ein Gewinnen des Gegners verhindern muss 
+					if (werteDesSpielzugs[i][j] == 0) {
+						spielfeldkopie[i][j] = 'X';
+						if (hatNiemandGewonnen(spielfeldkopie) == false) {
+							werteDesSpielzugs[i][j] = 2;
+						}
+					}
+					// Wenn es auch kein Gewinnen des Gegners zu vermeiden gilt, einen Zug zum eigenen Vorteil finden 
+					if (werteDesSpielzugs[i][j] == 0) {
+						spielfeldkopie[i][j] = 'O';
+						if (gibtEsZweiGleiche(spielfeldkopie, i, j)) {
+							if (werteDesSpielzugs[i][j] != 3 && werteDesSpielzugs[i][j] != 2)
+								werteDesSpielzugs[i][j] = 1;
+						}
+					
+					}
+				// Feld wieder leeren 
 				spielfeldkopie[i][j] = LEER;
+				}
+			}
+			
+		}
+		int aktuellerSpielzugwert = 0; // Wert den der aktuell geprüfte Spielzu zugewiesen bekommen hat
+		int besterSpielzugwert = 0; // Höchster Wert den ein Spielzug bisher hatte
+		int besteZeile = 0; // Welche Zeile der beste bisherige Spielzug hatte
+		int besteSpalte = 0; // Welche Spalte der beste bisherige Spielzug hatte 
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (werteDesSpielzugs[i][j] >= besterSpielzugwert) {
+					besterSpielzugwert = werteDesSpielzugs[i][j];
+					besteZeile = i;
+					besteSpalte = j;
+				}
 			}
 		}
-		bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 2, 2); 
-			if (dieMitteIstNichtFrei == false) {
-				spielfeld[2][2] = 'O';
-			}
-			// optimale Besetzung jetzt umsetzen 
-			// spielfeld[zeile][spalte] = 'O';
+		// optimales Feld belegen 
+		spielfeld[besteZeile][besteSpalte] = 'O';
 	}
 }
 
@@ -252,7 +284,7 @@ void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spie
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188); // macht folgende Ausgabe mit ASCII-Zeichen: ╚═══╩═══╩═══╝
 }
 
-bool gewinnErmitteln(char spielfeld[3][3]) { // Funktion, die ermittelt, ob es einen Gewinner gibt 
+bool hatNiemandGewonnen(char spielfeld[3][3]) { // Funktion, die ermittelt, ob es einen Gewinner gibt 
 	bool nichtgewonnen = true;
 	for (int i = 0; i < 3; ++i) {
 		// Überprüfen, ob die Werte der Zeilen gleich sind 
@@ -272,4 +304,34 @@ bool gewinnErmitteln(char spielfeld[3][3]) { // Funktion, die ermittelt, ob es e
 		nichtgewonnen = false;
 	}
 	return nichtgewonnen; 
+}
+
+bool gibtEsZweiGleiche(char spielfeld[3][3], int aktuelleSpalte, int aktuelleZeile) {// Funktion, um zu überprüfen, ob es 2 gleiche in einer gewinnbringenden Form durch den aktuellen Zug gibt 
+	bool zweigleichegefunden = false; 
+	for (int i = 0; i < 3; i++) {
+		// Überprüfen, ob zwei Werte in einer Zeile gleich sind 
+		if ((spielfeld[i][0] == spielfeld[i][1] && spielfeld[i][2] == LEER) ||
+			(spielfeld[i][0] == LEER && spielfeld[i][1] == spielfeld[i][2]) ||
+			(spielfeld[i][0] == spielfeld[i][2] && spielfeld[i][1] == LEER)) {
+			zweigleichegefunden = true;
+		}
+	}
+	for (int i = 0; i < 3; i++) {
+		// Überprüfen, ob zwei Werte in einer Spalte gleich sind 
+		if ((spielfeld[0][i] == spielfeld[1][i] && spielfeld[2][i] == LEER) ||
+			(spielfeld[0][i] == LEER && spielfeld[1][i] == spielfeld[2][i]) ||
+			(spielfeld[0][i] == spielfeld[2][i] && spielfeld[1][i] == LEER)) {
+			zweigleichegefunden = true;
+		}
+	}
+	// Überprüfen, ob zwei Werte in den Diagonalen gleich sind 
+	if ((spielfeld[0][0] == spielfeld[1][1] && spielfeld[2][2] == LEER) ||
+		(spielfeld[0][0] == spielfeld[2][2] && spielfeld[1][1] == LEER) ||
+		(spielfeld[1][1] == spielfeld[2][2] && spielfeld[0][0] == LEER) ||
+		(spielfeld[0][2] == spielfeld[1][1] && spielfeld[2][0] == LEER) ||
+		(spielfeld[0][2] == spielfeld[2][0] && spielfeld[1][1] == LEER) ||
+		(spielfeld[1][1] == spielfeld[2][0] && spielfeld[0][2] == LEER)) {
+		zweigleichegefunden = true; 
+	}
+	return zweigleichegefunden; 
 }

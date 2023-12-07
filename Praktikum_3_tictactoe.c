@@ -1,8 +1,9 @@
 /***
 
 Name:			TicTacToe
-Beschreibung:	Programm, in welchem der User Lottozahlen tippen kann. Gespielt wird 6 aus 49. Nach Tippen der 6 Zahlen, werden die "Richtigen"
-				gezogen, und die Gewinnquote bestimmt.
+Beschreibung:	Programm, in welchem der Nutzer TicTacToe gegen den Computer spielen kann und entweder gegen diesen verlieren, gewinnen oder unentschieden spielen kann.
+				Dabei kann der Nutzer immer weiterspielen und der Spielstand wird über mehrere Runden bestimmt. 
+				Zudem kann der Nutzer entscheiden, wie schwer der COmputer spielt und ob er selbst oder der Computer beginnt 
 Autorinnen:	    Emily Klemt, Carolin Altstaedt
 Datum:		    19.11.2023
 Version:		1
@@ -16,27 +17,28 @@ Version:		1
 #include <stdlib.h>
 #include <time.h>
 
-#define LEER ' '
+#define LEER ' ' // KOnstante für ein leeres Feld 
 
 short einlesenEinerZahl(char text[], short min, short max);		// Funktion, um eine Zahl einzulesen
 bool feldIstBelegt(char spielfeld[3][3], short zeile, short spalte); //Funktion, die überprüft, ob ein Feld belegt ist 
-void einfacherComputergegner(char spielfeld[3][3]);					// computer soll random ein feld auswählen und belegen
+void einfacherComputergegner(char spielfeld[3][3]);					// Funktion für den einfachen Computer, die nur zufällig ein Feld ausgibt
+void schwererComputer(char spielfeld[3][3]);			// Funktion für den schweren COmputer, die jedes Mal den bestmöglichen Zug ermittelt 
 void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spielstandComputer, int spielstandMensch); 		// Funktion, die das aktuelle Spielfeld ausgibt 
 bool gewinnErmitteln(char spielfeld[3][3]);				// Funktion, die überprüft, ob es einen Gewinner gibt 
 
 int main() {
 	
-	bool weiterspielen = true;  // Konstante Weiterspielen 
-	int spielstandSpieler = 0; 
-	int spielstandComputer = 0; 
-	int anzahlRunden = 0; 
+	bool weiterspielen = true;  // Variable, die angibt, ob der User noch weiterspielen möchte
+	int spielstandSpieler = 0;  // Anzahl der gewonnen/unentschiedenen Runden des Spielers
+	int spielstandComputer = 0; // Anzahl der gewonnen/unentschiedenen Runden des Computers
+	int anzahlRunden = 0; // Anzahl der gespielten Runden 
 
 	while (weiterspielen)
 	{
 		char spielfeldArray[3][3]; // Beinhaltet alle 9 Felder des Spielfeldes 
-		bool spielerIstDran = false; // Hier hätte ich eigentlich lieber einen boolean, mit spielerbeginnt true oder false 
+		bool spielerIstDran = false; // Variable, die wenn der Spieler selber dran ist, true ist 
 
-		// Reset des Spielfelds, eventuell noch in FUnktion ausgliedern 
+		// Reset des Spielfelds
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				spielfeldArray[i][j] = LEER; // 255 = ein Leerzeichen in Ascii 
@@ -58,7 +60,7 @@ int main() {
 		// Ausgabe des Spielfelds 
 		gibDasAktuelleSpielfeldAus(spielfeldArray, anzahlRunden, spielstandComputer, spielstandSpieler);
 
-		bool niemandHatGewonnen = true;
+		bool niemandHatGewonnen = true; // Variable, die true ist, solange niemand gewonnen hat 
 
 		//schleife zum spieldurchlauf, 9 durchläufe für 9 felder
 		for (int i = 0; i < 9 && niemandHatGewonnen; i++) {
@@ -74,7 +76,7 @@ int main() {
 				int erstesKreuzZeile = 0;	// 
 				int erstesKreuzSpalte = 0;
 
-				// In eine While Schleife, die überprüft, ob das Feld schon getippt wurde
+				// Einlesen des Feldes und überprüfen, ob dieses schon belegt wurde 
 				bool belegt = true;
 				while (belegt) {
 					belegt = false;
@@ -87,24 +89,16 @@ int main() {
 				}
 				spielfeldArray[erstesKreuzZeile][erstesKreuzSpalte] = 'X'; // 88 in Ascii = X 
 
-				/*// nur zum Überprüfen da
-				printf("\n");
-				for (int i = 0; i < 3; i++) {
-					for (int j = 0; j < 3; j++) {
-						printf("%c, ", spielfeldArray[i][j]);
-					}
-				}
-				*/
 			}
 			else {
 				// spieler ist 0, funktion für computer zug aufrufen
-				printf("Der Computer spielt jetzt\n");
+				printf("Der Computer spielt jetzt:\n");
 
 				// hier verschiedene Möglichkeiten, für verschiedene Schwierigkeitsgrade
 				einfacherComputergegner(spielfeldArray);
 			}
 
-			// Überprüfen, ob es einen Gewinner gibt oder Gleichstand ist 
+			// Überprüfen, ob es einen Gewinner gibt und Ausgabe des Gewinners
 			niemandHatGewonnen = gewinnErmitteln(spielfeldArray);
 			printf("%d", niemandHatGewonnen);
 			if (niemandHatGewonnen == false) {
@@ -117,7 +111,7 @@ int main() {
 				if (spielerIstDran) printf("Der Spieler hat gewonnen.\n");
 				else printf("Der Computer hat gewonnen\n");
 			}
-
+			// nach 8 Runden das unentschieden ausgeben, wenn noch niemand gewonnen hat 
 			if (i == 8 && niemandHatGewonnen) {
 				anzahlRunden++; 
 				printf("Gleichstand, niemand hat gewonnen!\n");
@@ -148,7 +142,7 @@ int main() {
 	}
 }
 
-short einlesenEinerZahl(
+short einlesenEinerZahl( // Funktion, um eine Zahl einzulesen 
 	char text[],
 	short min,
 	short max)
@@ -181,7 +175,7 @@ short einlesenEinerZahl(
 	return eingelesenerWert;
 }
 
-bool feldIstBelegt(char spielfeld[3][3], short zeile, short spalte) { //Funktion zum Überprüfen ob eine Zahl Bestandteil eines Arrays ist 
+bool feldIstBelegt(char spielfeld[3][3], short zeile, short spalte) { //Funktion zum Überprüfen ob ein Feld belegt ist 
 	bool belegt = false;
 	if (spielfeld[zeile][spalte] != LEER) {
 		belegt = true;
@@ -189,7 +183,7 @@ bool feldIstBelegt(char spielfeld[3][3], short zeile, short spalte) { //Funktion
 	return belegt;
 }
 
-void einfacherComputergegner(char spielfeld[3][3]) {
+void einfacherComputergegner(char spielfeld[3][3]) { // einfacher Computergegner, der ein zufälliges freies Feld besetzt 
 	int zeile, spalte;
 	bool freiesFeld = true;
 
@@ -204,28 +198,50 @@ void einfacherComputergegner(char spielfeld[3][3]) {
 	spielfeld[zeile][spalte] = 'O';
 }
 
-/*void schwererComputer(char spielfeld[3][3], bool aktuellerSpieler) {
-	bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 2, 2);
-	if (dieMitteIstNichtFrei == false) {
-		  spielfeld[2][2] = 'O';
-  }
-	int zeile, spalte;
-	bool freiesFeld = true;
 
-	while (freiesFeld) {
-		zeile = rand() % 3;
-		spalte = rand() % 3;
-		printf("\n%d", zeile);
-		printf("\n%d", spalte);
-
-		freiesFeld = feldIstBelegt(spielfeld, zeile, spalte);
+void schwererComputer(char spielfeld[3][3]) { // schwerer Computergegner, der immer den bestmöglichen Zug ermittelt 
+	char spielfeldkopie[3][3]; // Eine Kopie des Spielfelds erstellen 
+	for (int i = 0; i < 3; i++) { // Werte in die Kopie des Spielfelds einelesen
+		for (int j = 0; j < 3; j++) {
+			spielfeldkopie[i][j] = spielfeld[i][j]; 
+		}
 	}
-	spielfeld[zeile][spalte] = 'O';
-}
-*/
+	int werteDesSpielzugs[3][3]; // Array der den Wert, beinhaltet, was es dem COmputer bringen würde, dieses zu benutzen 
 
-void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spielstandComputer, int spielstandMensch) {
-	printf("Der aktuelle Spielstand nach der %d Runde ist: Computer: %d Mensch: %d\n", anzahlRunden, spielstandComputer, spielstandMensch);
+	// Simulation verschiedener Spielzüge über alle Felder 
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			// Wenn das Feld schon belegt ist, wird dem Spielzug der Wert 0 zugewiesen 
+			if (feldIstBelegt(spielfeldkopie, i, j)) {
+				werteDesSpielzugs[i][j] = 0;
+			}
+			// Wenn das Feld nicht belegt ist, verschiedene Szenarien für die Belegung prüfen 
+			else {
+				// Überprüfen, ob der Computer mit diesem Zug gewonnen hätte 
+				spielfeldkopie[i][j] = 'O';
+				if (gewinnErmitteln(spielfeldkopie) == false) {
+					werteDesSpielzugs[i][j] = 3;
+				}
+				spielfeldkopie[i][j] = 'X';
+				if (gewinnErmitteln(spielfeldkopie) == false) { // Warum hier Problem mit dem Else if??? 
+					werteDesSpielzugs[i][j] = 2;
+				}
+				// Das Feld der Spielfeldkopie leeren
+				spielfeldkopie[i][j] = LEER;
+			}
+		}
+		bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 2, 2); 
+			if (dieMitteIstNichtFrei == false) {
+				spielfeld[2][2] = 'O';
+			}
+			// optimale Besetzung jetzt umsetzen 
+			// spielfeld[zeile][spalte] = 'O';
+	}
+}
+
+
+void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spielstandComputer, int spielstandMensch) { // Funktion, die das aktuelle Spielfeld ausgibt 
+	printf("Der aktuelle Spielstand nach der %d Runde ist: Computer: %d Mensch: %d\n", anzahlRunden, spielstandComputer, spielstandMensch); // Teil der Funktion, der den aktuellen Spielstand ausgobt 
 	printf("\t  1   2   3\n");
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 203, 205, 205, 205, 203, 205, 205, 205, 187); // macht folgende Ausgabe mit ASCII-Zeichen: ╔═══╦═══╦═══╗
 	printf("1\t%c %c %c %c %c %c %c\n", 186, spielfeld[0][0], 186, spielfeld[0][1], 186, spielfeld[0][2], 186);
@@ -236,7 +252,7 @@ void gibDasAktuelleSpielfeldAus(char spielfeld[3][3], int anzahlRunden, int spie
 	printf("\t%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 202, 205, 205, 205, 202, 205, 205, 205, 188); // macht folgende Ausgabe mit ASCII-Zeichen: ╚═══╩═══╩═══╝
 }
 
-bool gewinnErmitteln(char spielfeld[3][3]) {
+bool gewinnErmitteln(char spielfeld[3][3]) { // Funktion, die ermittelt, ob es einen Gewinner gibt 
 	bool nichtgewonnen = true;
 	for (int i = 0; i < 3; ++i) {
 		// Überprüfen, ob die Werte der Zeilen gleich sind 
@@ -255,6 +271,5 @@ bool gewinnErmitteln(char spielfeld[3][3]) {
 		((spielfeld[0][2] == spielfeld[1][1] && spielfeld[1][1] == spielfeld[2][0] && (spielfeld[1][1] != LEER)))) {
 		nichtgewonnen = false;
 	}
-	// noch hat niemand gewonnen
 	return nichtgewonnen; 
 }

@@ -49,17 +49,17 @@ int main() {
 		srand((unsigned int)time(NULL));
 
 		// Einführung in das Spiel und Benutzeranleitung 
-		printf("Du spielst TicTacToe, das bloedeste Spiel der Welt!\n");
+		printf("In dieser Applikation kannst du TicTacToe gegen einen Computer spielen.\nDu kannst über mehrere Runden spielen.\nBevor es losgeht kannst du noch bestimmte Eigenschaften des Spiels einstellen.\n\n");
 
 		// Abfrage nach dem Schwierigkeitsgrad 
 		bool gegenEinfachenComputerSpielen = true; //Variable die angibt, ob der Mensch gegen einen einfachen oder schweren Computer spielen möchte
-		printf("Moechtest du gegen einen einfachen oder schweren Computer spielen? Wenn du gegen einen schweren Computer spielen moechtest druecke 's' und enter. Wenn du gegen einen einfachen spielen moechtest druecke nur enter."); 
+		printf("Moechtest du gegen einen einfachen oder schweren Computer spielen? \nWenn du gegen einen schweren Computer spielen moechtest druecke 's' und enter.\nWenn du gegen einen einfachen spielen moechtest druecke zweimal enter."); 
 		if (getchar() == 's') gegenEinfachenComputerSpielen = false; 
 		while (getchar() != '\n') {}
 
 		// Abfragen, wer beginnen soll: 
 		bool spielerIstDran = false; // Variable, die wenn der Spieler selber dran ist, true ist 
-		printf("Moechtest du beginnen, dann druecke x. Wenn nicht druecke einfach enter.\n"); 
+		printf("Moechtest du beginnen, dann druecke x. Wenn nicht druecke einfach zweimal enter.\n"); 
 		if (getchar() == 'x') spielerIstDran = true; 
 		while (getchar() != '\n') {}
 
@@ -208,9 +208,9 @@ void einfacherComputergegner(char spielfeld[3][3]) { // einfacher Computergegner
 
 
 void schwererComputer(char spielfeld[3][3], bool wenigerAlsZweiRunden) { // schwerer Computergegner, der immer den bestmöglichen Zug ermittelt 
-	bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 2, 2);
+	bool dieMitteIstNichtFrei = feldIstBelegt(spielfeld, 1, 1);
 	if (wenigerAlsZweiRunden && dieMitteIstNichtFrei == false) {
-			spielfeld[2][2] = 'O';
+			spielfeld[1][1] = 'O';
 		}
 	else {
 		char spielfeldkopie[3][3]; // Eine Kopie des Spielfelds erstellen 
